@@ -1,4 +1,4 @@
-name: Deploy NGINX
+name: Deploying params
 
 on:
   workflow_dispatch:
