@@ -23,12 +23,12 @@ on:
         type: string
       parameter3:
         description: 'TEST_ENV'
-        required: true
+        required: False
         # default: 'default_value1'
         type: string
       parameter4:
         description: 'HTTPD_CONF'
-        required: true
+        required: False
         # default: 'default_value1'
         type: string
 
