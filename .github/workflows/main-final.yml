@@ -1,4 +1,4 @@
-name: Deploy NGINX
+name: Deploy NGINX & HTTPD
 
 on:
   workflow_dispatch:
