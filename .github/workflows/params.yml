@@ -1,0 +1,135 @@
+name: Deploy NGINX
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+      parameter1:
+        description: 'DEV_ENV'
+        required: False
+        # default: 'default_value1'
+        type: string
+      parameter2:
+        description: 'NGINX_CONF'
+        required: False
+        # default: 'default_value1'
+        type: string
+      parameter3:
+        description: 'TEST_ENV'
+        required: False
+        # default: 'default_value1'
+        type: string
+      parameter4:
+        description: 'HTTPD_CONF'
+        required: False
+        # default: 'default_value1'
+        type: string
+
+jobs:
+  deploy-dev:
+    if: ${{ github.event.inputs.environment == 'dev' }}
+    runs-on: ubuntu-latest
+    env:
+      PARAM1: if [[ "${{ github.event.inputs.environment }}" == "dev" ]]; then
+          echo "DEV_ENV parameter:${{ github.event.inputs.parameter1 }}"
+          echo "NGINX_CONF parameter:${{ github.event.inputs.parameter2 }}"
+        else
+          echo "No specified env"
+        fi
+      #PARAM2: ${{ github.event.inputs.parameter2 }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update and install NGINX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+    - name: Start NGINX
+      run: |
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+
+    - name: Verify NGINX is running
+      run: |
+        sudo systemctl status nginx
+
+    - name: Copy NGINX configuration
+      run: |
+        sudo cp my-directory/$NGINX_CONF /etc/nginx/nginx.conf
+        sudo systemctl restart nginx
+
+    - name: Use Parameters for Dev
+      run: |
+        echo "Parameter 1: $PARAM1"
+        echo "Parameter 2: $PARAM2"
+
+  deploy-test:
+    if: ${{ github.event.inputs.environment == 'test' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update and install httpd
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y httpd
+
+    - name: Start NGINX
+      run: |
+        sudo systemctl start httpd
+        sudo systemctl enable httpd
+
+    - name: Verify NGINX is running
+      run: |
+        sudo systemctl status httpd
+
+    - name: Copy NGINX configuration
+      run: |
+        sudo cp my-directory/$HTTPD_CONF /etc/httpd/httpd.conf
+        sudo systemctl restart httpd
+
+    - name: Use Parameters for Test
+      run: |
+        echo "Parameter 3: $PARAM3"
+        echo "Parameter 4: $PARAM4"
+
+  deploy-prod:
+    if: ${{ github.event.inputs.environment == 'prod' }}
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: prod
+      NGINX_CONF: prod/nginx.conf
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update and install NGINX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+    - name: Start NGINX
+      run: |
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+
+    - name: Verify NGINX is running
+      run: |
+        sudo systemctl status nginx
+
+    - name: Copy NGINX configuration
+      run: |
+        sudo cp my-directory/$NGINX_CONF /etc/nginx/nginx.conf
+        sudo systemctl restart nginx
