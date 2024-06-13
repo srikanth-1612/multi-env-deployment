@@ -1,0 +1,104 @@
+name: Deploy NGINX
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+
+jobs:
+  deploy-dev:
+    if: ${{ github.event.inputs.environment == 'dev' }}
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: dev
+      NGINX_CONF: dev/nginx.conf
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update and install NGINX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+    - name: Start NGINX
+      run: |
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+
+    - name: Verify NGINX is running
+      run: |
+        sudo systemctl status nginx
+
+    - name: Copy NGINX configuration
+      run: |
+        sudo cp my-directory/$NGINX_CONF /etc/nginx/nginx.conf
+        sudo systemctl restart nginx
+
+  deploy-test:
+    if: ${{ github.event.inputs.environment == 'test' }}
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      NGINX_CONF: test/nginx.conf
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update and install NGINX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+    - name: Start NGINX
+      run: |
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+
+    - name: Verify NGINX is running
+      run: |
+        sudo systemctl status nginx
+
+    - name: Copy NGINX configuration
+      run: |
+        sudo cp my-directory/$NGINX_CONF /etc/nginx/nginx.conf
+        sudo systemctl restart nginx
+
+  deploy-prod:
+    if: ${{ github.event.inputs.environment == 'prod' }}
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: prod
+      NGINX_CONF: prod/nginx.conf
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Update and install NGINX
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+    - name: Start NGINX
+      run: |
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+
+    - name: Verify NGINX is running
+      run: |
+        sudo systemctl status nginx
+
+    - name: Copy NGINX configuration
+      run: |
+        sudo cp my-directory/$NGINX_CONF /etc/nginx/nginx.conf
+        sudo systemctl restart nginx
