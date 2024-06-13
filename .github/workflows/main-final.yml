@@ -1,4 +1,4 @@
-name: Deploy NGINX & HTTPD
+name: Deploy NGINX
 
 on:
   workflow_dispatch:
@@ -10,15 +10,14 @@ on:
         options:
           - dev
           - test
-          - prod
       parameter1:
         description: 'DEV_ENV'
-        required: true
+        required: False
         # default: 'default_value1'
         type: string
       parameter2:
         description: 'NGINX_CONF'
-        required: true
+        required: False
         # default: 'default_value1'
         type: string
       parameter3:
@@ -63,6 +62,11 @@ jobs:
         sudo cp my-directory/$NGINX_CONF /etc/nginx/nginx.conf
         sudo systemctl restart nginx
 
+    - name: Use Parameters for Dev
+      run: |
+        echo "Parameter 1: $PARAM1"
+        echo "Parameter 2: $PARAM2"
+
   deploy-test:
     if: ${{ github.event.inputs.environment == 'test' }}
     runs-on: ubuntu-latest
@@ -92,6 +96,11 @@ jobs:
       run: |
         sudo cp my-directory/$HTTPD_CONF /etc/httpd/httpd.conf
         sudo systemctl restart httpd
+
+    - name: Use Parameters for Test
+      run: |
+        echo "Parameter 3: $PARAM3"
+        echo "Parameter 4: $PARAM4"
 
   deploy-prod:
     if: ${{ github.event.inputs.environment == 'prod' }}
