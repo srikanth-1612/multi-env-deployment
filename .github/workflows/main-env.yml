@@ -26,9 +26,9 @@ jobs:
   deploy-dev:
     if: ${{ github.event.inputs.environment == 'dev' }}
     runs-on: ubuntu-latest
-    env:
-      APP_ENV: dev
-      NGINX_CONF: dev/nginx.conf
+    #env:
+      #APP_ENV: dev
+      #NGINX_CONF: dev/nginx.conf
 
     steps:
     - name: Checkout code
