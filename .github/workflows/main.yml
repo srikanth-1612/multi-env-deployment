@@ -12,15 +12,15 @@ on:
           - dev
           - test
           - prod
-      parameter1:
-        description: 'Enter parameter1 value'
+      variable-1:
+        description: 'Enter parameter1'
         required: true
-        default: 'default_value1'
+        # default: 'default_value1'
         type: string
-      parameter2:
-        description: 'Enter parameter2 value'
+      variable-2:
+        description: 'Enter parameter2'
         required: true
-        default: 'default_value2'
+        # default: 'default_value2'
         type: string
 
 jobs:
