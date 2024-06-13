@@ -11,6 +11,16 @@ on:
           - dev
           - test
           - prod
+      parameter1:
+        description: 'APP_ENV'
+        required: true
+        # default: 'default_value1'
+        type: string
+      parameter1:
+        description: 'NGINX_CONF'
+        required: true
+        # default: 'default_value1'
+        type: string
 
 jobs:
   deploy-dev:
