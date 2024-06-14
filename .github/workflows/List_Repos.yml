@@ -20,8 +20,8 @@ jobs:
 
     - name: Manage Environments
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ORG: 'YOUR_ORG_NAME'  # replace with your organization name
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        ORG: Rcx-chinna   # replace with your organization name
       run: |
         node -e "
         const axios = require('axios');
