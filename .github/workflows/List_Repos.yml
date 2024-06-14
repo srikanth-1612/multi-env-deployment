@@ -1,0 +1,137 @@
+name: Manage and List Repos Environments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  manage-environments:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install axios
+
+    - name: Manage Environments
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        ORG: 'YOUR_ORG_NAME'  # replace with your organization name
+      run: |
+        node -e "
+        const axios = require('axios');
+        const token = process.env.TOKEN;
+        const org = process.env.ORG;
+        const headers = {
+          'Authorization': \`token \${token}\`,
+          'Accept': 'application/vnd.github.v3+json'
+        };
+        
+        const environments = ['dev', 'test', 'prod'];
+        const environmentVariables = {
+          'dev': { 'VAR1': 'value1', 'VAR2': 'value2' },
+          'test': { 'VAR3': 'value3', 'VAR4': 'value4' },
+          'prod': { 'VAR5': 'value5', 'VAR6': 'value6' }
+        };
+
+        async function createEnvironment(repo, environment) {
+          try {
+            await axios.post(
+              \`https://api.github.com/repos/\${org}/\${repo}/environments/\${environment}\`,
+              {},
+              { headers }
+            );
+            console.log(\`Environment \${environment} created in repo \${repo}\`);
+          } catch (error) {
+            if (error.response && error.response.status === 422) {
+              console.log(\`Environment \${environment} already exists in repo \${repo}\`);
+            } else {
+              console.error(\`Failed to create environment \${environment} in repo \${repo}\`, error.message);
+            }
+          }
+        }
+
+        async function setEnvironmentVariables(repo, environment, variables) {
+          for (const [key, value] of Object.entries(variables)) {
+            try {
+              await axios.put(
+                \`https://api.github.com/repos/\${org}/\${repo}/environments/\${environment}/secrets/\${key}\`,
+                { encrypted_value: value },
+                { headers }
+              );
+              console.log(\`Variable \${key} set in environment \${environment} of repo \${repo}\`);
+            } catch (error) {
+              console.error(\`Failed to set variable \${key} in environment \${environment} of repo \${repo}\`, error.message);
+            }
+          }
+        }
+
+        async function getRepos() {
+          try {
+            const reposResponse = await axios.get(\`https://api.github.com/orgs/\${org}/repos\`, { headers });
+            const repos = reposResponse.data;
+
+            for (const repo of repos) {
+              console.log(\`Repository: \${repo.name}\`);
+              const environmentsResponse = await axios.get(\`https://api.github.com/repos/\${org}/\${repo.name}/environments\`, { headers });
+              const repoEnvironments = environmentsResponse.data.environments;
+
+              for (const environment of environments) {
+                const envExists = repoEnvironments.some(env => env.name === environment);
+                if (!envExists) {
+                  await createEnvironment(repo.name, environment);
+                }
+                await setEnvironmentVariables(repo.name, environment, environmentVariables[environment]);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to list repositories or environments', error.message);
+          }
+        }
+
+        getRepos();
+        "
+
+    - name: List Repositories, Environments, and Variables
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        ORG: 'YOUR_ORG_NAME'  # replace with your organization name
+      run: |
+        node -e "
+        const axios = require('axios');
+        const token = process.env.TOKEN;
+        const org = process.env.ORG;
+        const headers = {
+          'Authorization': \`token \${token}\`,
+          'Accept': 'application/vnd.github.v3+json'
+        };
+
+        async function getRepos() {
+          try {
+            const reposResponse = await axios.get(\`https://api.github.com/orgs/\${org}/repos\`, { headers });
+            const repos = reposResponse.data;
+
+            for (const repo of repos) {
+              console.log(\`Repository: \${repo.name}\`);
+              const environmentsResponse = await axios.get(\`https://api.github.com/repos/\${org}/\${repo.name}/environments\`, { headers });
+              const repoEnvironments = environmentsResponse.data.environments;
+
+              for (const env of repoEnvironments) {
+                console.log(\`  Environment: \${env.name}\`);
+                // Listing environment variables is not directly supported by GitHub API for security reasons.
+                // You would typically manage these via GitHub Secrets, here we print a placeholder.
+                console.log(\`    Variables: (not retrievable via API)\`);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to list repositories or environments', error.message);
+          }
+        }
+
+        getRepos();
+        "
