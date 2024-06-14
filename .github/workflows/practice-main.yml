@@ -67,4 +67,5 @@ jobs:
           # Add commands for production environment
         else
           echo "Unknown environment"
+        fi
           
