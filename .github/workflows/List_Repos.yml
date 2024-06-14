@@ -20,22 +20,22 @@ jobs:
 
     - name: Manage Environments
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ORG: 'YOUR_ORG_NAME'  # replace with your organization name
       run: |
         node -e "
         const axios = require('axios');
-        const token = process.env.TOKEN;
+        const token = process.env.GITHUB_TOKEN;
         const org = process.env.ORG;
         const headers = {
           'Authorization': \`token \${token}\`,
           'Accept': 'application/vnd.github.v3+json'
         };
         
-        const environments = ['dev', 'test', 'prod'];
+        const environments = ['Dev', 'Test', 'prod'];
         const environmentVariables = {
-          'dev': { 'VAR1': 'value1', 'VAR2': 'value2' },
-          'test': { 'VAR3': 'value3', 'VAR4': 'value4' },
+          'Dev': { 'VAR1': 'value1', 'VAR2': 'value2' },
+          'Test': { 'VAR3': 'value3', 'VAR4': 'value4' },
           'prod': { 'VAR5': 'value5', 'VAR6': 'value6' }
         };
 
@@ -100,11 +100,11 @@ jobs:
     - name: List Repositories, Environments, and Variables
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        ORG: 'YOUR_ORG_NAME'  # replace with your organization name
+        ORG: Rcx-chinna  # replace with your organization name
       run: |
         node -e "
         const axios = require('axios');
-        const token = process.env.TOKEN;
+        const token = process.env.GITHUB_TOKEN;
         const org = process.env.ORG;
         const headers = {
           'Authorization': \`token \${token}\`,
