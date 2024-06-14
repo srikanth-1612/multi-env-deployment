@@ -20,7 +20,7 @@ jobs:
 
     - name: Manage Environments
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
         ORG: 'Rcx-chinna'  # organization name
         REPO: 'multi-environment-deployment'  # repository name
       run: |
@@ -91,7 +91,7 @@ jobs:
 
     - name: List Repositories, Environments, and Variables
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
         ORG: 'Rcx-chinna'  # organization name
         REPO: 'multi-environment-deployment'  # repository name
       run: |
