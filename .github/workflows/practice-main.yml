@@ -6,28 +6,37 @@ on:
       environment:
         description: 'Choose environment'
         required: true
-        #default: 'dev'
+        default: 'dev'
         type: choice
         options:
           - dev
-            parameter1:
-              description: 'Enter parameter1 value'
-              required: true
-              # default: 'default_value1'
-              type: string
           - test
-            parameter2:
-              description: 'Enter parameter1 value'
-              required: true
-              # default: 'default_value1'
-              type: string
+          - prod
+      param1:
+        description: 'parameter1 value for dev environment'
+        required: false
+        type: string
+      param2:
+        description: 'parameter2 value for dev environment'
+        required: false
+        type: string
+      param3:
+        description: 'parameter3 value for test environment'
+        required: false
+        type: string
+      param4:
+        description: 'parameter4 value for test environment'
+        required: false
+        type: string
 
 jobs:
   run-sample-app:
     runs-on: ubuntu-latest
     env:
-      PARAM1: ${{ github.event.inputs.parameter1 }}
-      PARAM2: ${{ github.event.inputs.parameter2 }}
+      P1: ${{ github.event.inputs.param1 }}
+      P2: ${{ github.event.inputs.param2 }}
+      P3: ${{ github.event.inputs.param3 }}
+      P4: ${{ github.event.inputs.param4 }}
       ENVIRONMENT: ${{ github.event.inputs.environment }}
     
     steps:
@@ -37,8 +46,13 @@ jobs:
     - name: Setup environment
       run: |
         echo "Running in environment: $ENVIRONMENT"
-        echo "Parameter 1: $PARAM1"
-        echo "Parameter 2: $PARAM2"
+        if [ "$ENVIRONMENT" == "dev" ]; then
+          echo "Parameter 1: $P1"
+          echo "Parameter 2: $P2"
+        elif [ "$ENVIRONMENT" == "test" ]; then
+          echo "Parameter 3: $P3"
+          echo "Parameter 4: $P4"
+        fi
 
     - name: Run sample app
       run: |
@@ -54,4 +68,3 @@ jobs:
         else
           echo "Unknown environment"
           exit 1
-        fi
