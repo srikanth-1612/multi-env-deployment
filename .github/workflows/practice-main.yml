@@ -37,7 +37,7 @@ jobs:
       P2: ${{ github.event.inputs.param2 }}
       P3: ${{ github.event.inputs.param3 }}
       P4: ${{ github.event.inputs.param4 }}
-      ENVIRONMENT: ${{ github.event.inputs.environment }}
+      # ENVIRONMENT: ${{ github.event.inputs.environment }}
     
     steps:
     - name: Checkout code
