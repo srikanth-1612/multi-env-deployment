@@ -1,4 +1,4 @@
-name: List Repositories and Environments
+name: Repos & env's
 
 on:
   workflow_dispatch:
