@@ -1,4 +1,4 @@
-name: List Organizations
+name: List Repositories in Organizations
 
 on:
   workflow_dispatch:
@@ -21,4 +21,9 @@ jobs:
       id: list_orgs
       run: |
         orgs=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /user/orgs --jq '.[].login')
-        echo "orgs=$orgs" >> $GITHUB_ENV
+        echo "orgs<<EOF" >> $GITHUB_ENV
+        echo "$orgs" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+      env:
+        orgs: ${{ steps.list_orgs.outputs.orgs }}
