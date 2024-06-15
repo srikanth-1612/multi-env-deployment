@@ -20,7 +20,7 @@ jobs:
     - name: List repositories
       id: get_repos
       run: |
-        repos=$(gh api --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" /orgs/srikanth-1612/repos --jq '.[].name')
+        repos=$(gh api --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" /orgs/mgm-chinna/repos --jq '.[].name')
         echo "::save-output name=repos::$repos"
 
     - name: Display repositories and environments
@@ -30,7 +30,7 @@ jobs:
 
         for repo in "${repo_array[@]}"; do
           echo "Repository: $repo"
-          environments=$(gh api --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" /repos/srikanth-1612/$repo/environments --jq '.environments[].name')
+          environments=$(gh api --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" /repos/mgm-chinna/$repo/environments --jq '.environments[].name')
           IFS=$'\n' read -r -d '' -a env_array <<< "$environments"
 
           for env in "${env_array[@]}"; do
