@@ -22,7 +22,7 @@ jobs:
       run: |
         user=$(gh api user --jq '.login')
         repos=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /users/$user/repos --jq '.[].name')
-        echo "repos=$repos" >> $GITHUB_ENV
+        echo "repositories=$(echo $repos | tr '\n' ' ')" >> $GITHUB_ENV
 
     - name: Display Repositories
       run: |
