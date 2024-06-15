@@ -1,0 +1,35 @@
+name: List Repositories only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  list_repos:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install GitHub CLI
+      run: sudo apt-get install gh -y
+
+    - name: Authenticate with GitHub CLI
+      run: echo "${{ secrets.PAT }}" | gh auth login --with-token
+
+    - name: List Repositories
+      id: list_repos
+      run: |
+        user=$(gh api user --jq '.login')
+        repos=$(gh api --header "Authorization: token ${{ secrets.PAT }}" /users/$user/repos --jq '.[].name')
+        echo "repos=$repos" >> $GITHUB_ENV
+
+    - name: Display Repositories
+      run: |
+        repos="${{ env.repos }}"
+        echo "Repositories: $repos"
+        IFS=$'\n' read -r -a repo_array <<< "$repos"
+        
+        for repo in "${repo_array[@]}"; do
+          echo "  - Repository: $repo"
+        done
