@@ -1,4 +1,4 @@
-name: Repos & env's
+name: List Repositories and Environments
 
 on:
   workflow_dispatch:
@@ -21,11 +21,11 @@ jobs:
       id: get_repos
       run: |
         repos=$(gh api --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" /orgs/Rcx-chinna/repos --jq '.[].name')
-        echo "::save-output name=repos::$repos"
+        echo "repos=$repos" >> $GITHUB_ENV
 
     - name: Display repositories and environments
       run: |
-        repos=${{ steps.get_repos.outputs.repos }}
+        repos="${{ env.repos }}"
         IFS=$'\n' read -r -d '' -a repo_array <<< "$repos"
 
         for repo in "${repo_array[@]}"; do
