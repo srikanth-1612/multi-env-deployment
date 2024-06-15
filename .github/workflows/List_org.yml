@@ -15,15 +15,11 @@ jobs:
       run: sudo apt-get install gh -y
 
     - name: Authenticate with GitHub CLI
-      run: echo "${{ secrets.TOKEN }}" | gh auth login --with-token
+      run: echo "${{ secrets.PAT }}" | gh auth login --with-token
 
     - name: List Organizations
       id: list_orgs
       run: |
-        orgs=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /user/orgs --jq '.[].login')
-        echo "orgs<<EOF" >> $GITHUB_ENV
-        echo "$orgs" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-      env:
-        orgs: ${{ steps.list_orgs.outputs.orgs }}
+        orgs=$(gh api --header "Authorization: token ${{ secrets.PAT }}" /user/orgs --jq '.[].login')
+        echo "Organizations: $orgs"
+        
