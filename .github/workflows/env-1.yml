@@ -21,7 +21,7 @@ jobs:
       id: get_repos
       run: |
         repos=$(gh api --header "Authorization: token ${{ secrets.GITHUB_TOKEN }}" /orgs/mgm-chinna/repos --jq '.[].name')
-        echo "::save-output name=repos::$repos"
+        echo "repos=$repos" >> $GITHUB_ENV
 
     - name: Display repositories and environments
       run: |
