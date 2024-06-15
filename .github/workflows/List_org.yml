@@ -1,0 +1,24 @@
+name: List Organizations
+
+on:
+  workflow_dispatch:
+
+jobs:
+  list_repos:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install GitHub CLI
+      run: sudo apt-get install gh -y
+
+    - name: Authenticate with GitHub CLI
+      run: echo "${{ secrets.TOKEN }}" | gh auth login --with-token
+
+    - name: List Organizations
+      id: list_orgs
+      run: |
+        orgs=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /user/orgs --jq '.[].login')
+        echo "orgs=$orgs" >> $GITHUB_ENV
