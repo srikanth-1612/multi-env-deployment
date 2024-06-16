@@ -1,0 +1,36 @@
+name: List Repositories with sample 1602 file
+
+on:
+  workflow_dispatch:
+
+jobs:
+  list_repos:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install GitHub CLI and jq
+      run: |
+        sudo apt-get update
+        sudo apt-get install gh jq -y
+
+    - name: Authenticate with GitHub CLI
+      run: echo "${{ secrets.TOKEN }}" | gh auth login --with-token
+
+    - name: List Repositories
+      id: get_repos
+      run: |
+        org_name="srikanth-1612"
+        repos=$(gh repo list $org_name --json name | jq -r '.[].name')
+        echo "repositories=$(echo $repos | tr '\n' ' ')" >> $GITHUB_ENV
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+    #- name: Store Repositories as Output
+    #  run: echo "repos=${{ steps.get_repos.outputs.repos }}" >> $GITHUB_ENV
+
+    - name: Display Repositories
+      run: |
+        echo "Listed Repositories:"
+        echo "${{ env.repos }}"
