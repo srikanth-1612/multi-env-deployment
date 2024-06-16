@@ -33,4 +33,5 @@ jobs:
     - name: Display Repositories
       run: |
         echo "Listed Repositories:"
-        echo "${{ env.repos }}"
+        repos=$(echo "${{ env.repos }}" | tr ' ' '\n')
+        echo "$repos"
