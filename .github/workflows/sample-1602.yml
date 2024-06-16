@@ -1,4 +1,4 @@
-name: List Repositories with sample 1602 file
+name: List Repositories
 
 on:
   workflow_dispatch:
@@ -23,10 +23,7 @@ jobs:
       run: |
         org_name="srikanth-1612"
         repos=$(gh repo list $org_name --json name | jq -r '.[].name')
-      #  echo "repositories=$(echo $repos | tr '\n' ' ')" >> $GITHUB_ENV
         echo "repositories=$repos" >> $GITHUB_ENV
-      #env:
-      #  GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
     #- name: Store Repositories as Output
     #  run: echo "repos=${{ steps.get_repos.outputs.repos }}" >> $GITHUB_ENV
