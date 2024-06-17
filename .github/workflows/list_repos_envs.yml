@@ -11,8 +11,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install GitHub CLI
-      run: sudo apt-get install gh -y
+    - name: Install GitHub CLI and jq
+      run: sudo apt-get install gh jq -y
 
     - name: Authenticate with GitHub CLI
       run: echo "${{ secrets.TOKEN }}" | gh auth login --with-token
@@ -32,7 +32,7 @@ jobs:
         
         for repo in "${repo_array[@]}"; do
           echo "Repository: $repo"
-          environments=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /repos/$user/$repo/environments --jq '.environments[].name')
+          environments=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /repos/$user/$repo/environments | jq -r '.environments[].name')
           if [ -z "$environments" ]; then
             echo "  No environments found."
           else
