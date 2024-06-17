@@ -2,6 +2,8 @@ name: List Repositories
 
 on:
   workflow_dispatch:
+    inputs:
+      repos_list: ${{ steps.get_repos.outputs.repos }}
 
 jobs:
   list_repos:
@@ -23,13 +25,18 @@ jobs:
       run: |
         org_name="srikanth-1612"
         repos=$(gh repo list $org_name --json name | jq -r '.[].name')
-        echo "repositories=$repos" >> $GITHUB_ENV
-
-    #- name: Store Repositories as Output
-    #  run: echo "repos=${{ steps.get_repos.outputs.repos }}" >> $GITHUB_ENV
+        echo "repositories=$(echo $repos | tr '\n' ' ')" >> $GITHUB_ENV
 
     - name: Display Repositories
       run: |
         echo "Listed Repositories:"
         repos=$(echo "${{ env.repos }}" | tr ' ' '\n')
         echo "$repos"
+
+    - name: List Environments
+      id: get_envs
+      run: |
+        user="${{ github.event.inputs.owner }}"
+        repo="${{ github.event.inputs.repository }}"
+        environments=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /repos/$user/$repo/environments | jq -r '.environments[].name')
+        echo "environments=$environments" >> $GITHUB_ENV
