@@ -1,0 +1,33 @@
+name: Environments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  get-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      environment_name: ${{ steps.get_environment.outputs.environment_name }}
+    steps:
+      - id: get_environment
+        run: |
+          if [ "$GITHUB_REF" = "refs/heads/test" ]
+          then
+            echo "::set-output name=environment_name::test"
+          elif [ "$GITHUB_REF" = "refs/heads/qa" ]
+          then
+            echo "::set-output name=environment_name::qa"
+          elif [ "$GITHUB_REF" = "refs/heads/master" ]
+          then
+            echo "::set-output name=environment_name::production"
+          fi
+    
+  use-environment:
+    runs-on: ubuntu-latest
+    needs: [get-environment]
+    environment: ${{ needs.get-environment.outputs.environment_name }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run a one-line script
+        run: echo ${{ secrets.ENV_DEPENDENT_SECRET }}
