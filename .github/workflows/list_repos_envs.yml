@@ -33,7 +33,7 @@ jobs:
         for repo in "${repo_array[@]}"; do
           echo "Repository: $repo"
           user=$(gh api user --jq '.login')
-          environments=gh api repos/$user/$repo/environments --jq '.environments[].name'
+          environments=$(gh api --header "Authorization: token ${{ secrets.TOKEN }}" /users/$user/repos/$repo/environments --jq '.[].name')
           if [ -z "$environments" ]; then
             echo "  No environments found."
           else
