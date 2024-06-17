@@ -1,0 +1,57 @@
+name: Creating environment with env variables
+
+on:
+  workflow_dispatch:
+    inputs:
+      repos:
+        description: 'Enter Repository name'
+        required: true
+
+      environments:
+        description: 'Enter the environment name'
+        required: true
+
+      variable_name:
+        description: 'Enter environment variable name'
+        required: true
+
+jobs:
+  create-environment-and-env_variable:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install GitHub CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install gh -y
+
+    - name: Authenticate with GitHub CLI
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+    - name: Create Environment
+      run: |
+        repo="${{ github.event.inputs.repository }}"
+        env_name="${{ github.event.inputs.environment_name }}"
+        gh api \
+          -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          /repos/$repo/environments \
+          -f name=$env_name
+
+    - name: Add Environment Variable
+      run: |
+        repo="${{ github.event.inputs.repository }}"
+        env_name="${{ github.event.inputs.environment_name }}"
+        var_name="${{ github.event.inputs.variable_name }}"
+        var_value="${{ github.event.inputs.variable_value }}"
+        gh api \
+          -X PUT \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          /repos/$repo/environments/$env_name/variables \
+          -f name=$var_name \
+          -f value=$var_value
