@@ -3,11 +3,11 @@ name: Creating environment with env variables
 on:
   workflow_dispatch:
     inputs:
-      repos:
-        description: 'Enter Repository name'
+      repository:
+        description: 'Enter the Repository name'
         required: true
 
-      environments:
+      environment_name:
         description: 'Enter the environment name'
         required: true
 
@@ -16,7 +16,7 @@ on:
         required: true
 
 jobs:
-  create-environment-and-env_variable:
+  Create_environment_and_env_variable:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +36,7 @@ jobs:
         repo="${{ github.event.inputs.repository }}"
         env_name="${{ github.event.inputs.environment_name }}"
         gh api \
-          -X POST \
+          -X GET \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           /repos/$repo/environments \
