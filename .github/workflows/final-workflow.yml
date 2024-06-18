@@ -14,14 +14,9 @@ on:
           - Pre-Prod
 
       variable_name:
-        description: 'Environments'
+        description: 'Environment variable'
         required: true
         default: deploy_env
-
-      variable_value:
-        description: 'Enter value of environment variable'
-        required: false
-        default: ''
       
 jobs:
   set-environment-variable:
