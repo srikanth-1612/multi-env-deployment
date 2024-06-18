@@ -15,6 +15,11 @@ on:
         description: 'Enter environment variable name'
         required: true
 
+      variable_value:
+        description: 'Enter value of environment variable'
+        required: true
+      
+
 jobs:
   Create_environment_and_env_variable:
     runs-on: ubuntu-latest
@@ -42,4 +47,17 @@ jobs:
           -H "Authorization: token ${{ secrets.TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           "/repos/${user}/${repo}/environments/${env_name}" \
-    
+
+    - name: Add Environment Variable
+      run: |
+        repo="${{ github.event.inputs.repository }}"
+        env_name="${{ github.event.inputs.environment_name }}"
+        var_name="${{ github.event.inputs.variable_name }}"
+        var_value="${{ github.event.inputs.variable_value }}"
+
+        gh api \
+          -X PUT \
+          -H "Authorization: token ${{ secrets.TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          //repos/${user}/${repo}/environments/${env_name}/variables/${var_name} \
+          -f value="${var_value}"
