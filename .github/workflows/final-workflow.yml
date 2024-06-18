@@ -1,0 +1,47 @@
+name: Creating environment variables based on environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: 'Environments'
+        required: true
+        options:
+        - Dev
+        - Test
+        - Prod
+        - Pre-Prod
+
+      variable_name:
+        description: 'Environments'
+        required: true
+        default: deploy_env
+
+      variable_value:
+        description: 'Enter value of environment variable'
+        required: false
+        default: ''
+      
+jobs:
+  set-environment-variable:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set and Echo Environment Variable
+        run: |
+          ENV_NAME=${{ github.event.inputs.environment_name }}
+          VAR_NAME=${{ github.event.inputs.variable_name }}
+          VAR_VALUE=${{ github.event.inputs.variable_value }}
+          
+          if [ -z "$VAR_VALUE" ]; then
+            VAR_VALUE=$ENV_NAME
+          fi
+
+          echo "Setting environment variable: $VAR_NAME with value: $VAR_VALUE"
+          
+        # Exporting environment variable for subsequent steps
+          echo "$VAR_NAME=$VAR_VALUE" >> $GITHUB_ENV
+          
+        # Sample echo statement to verify
+          echo "The environment variable $VAR_NAME is set to $VAR_VALUE"
+
