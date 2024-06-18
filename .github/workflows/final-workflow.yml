@@ -7,10 +7,10 @@ on:
         description: 'Environments'
         required: true
         options:
-        - Dev
-        - Test
-        - Prod
-        - Pre-Prod
+          - Dev
+          - Test
+          - Prod
+          - Pre-Prod
 
       variable_name:
         description: 'Environments'
@@ -38,6 +38,6 @@ jobs:
           fi
 
           echo "Setting environment variable: $VAR_NAME with value: $VAR_VALUE"
-          echo "${VAR_NAME}=${VAR_VALUE}" >> $GITHUB_ENV
+          echo "$VAR_NAME=$VAR_VALUE" >> $GITHUB_ENV
           echo "The environment variable $VAR_NAME is set to $VAR_VALUE"
 
