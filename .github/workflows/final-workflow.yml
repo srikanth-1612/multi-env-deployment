@@ -6,6 +6,7 @@ on:
       environment_name:
         description: 'Environments'
         required: true
+        type: choice
         options:
           - Dev
           - Test
