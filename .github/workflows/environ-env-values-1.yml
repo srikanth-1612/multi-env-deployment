@@ -56,7 +56,7 @@ jobs:
         var_value="${{ github.event.inputs.variable_value }}"
         user=$(gh api user --jq '.login')
 
-        echo "${VAR_VALUE}" | gh secret set "${VAR_NAME}" -b -R "${USER}/${REPO_NAME}"
+        echo "${var_value}" | gh secret set "${var_name}" -b -R "${user}/${repo}"
 
         gh api \
           -X POST \
