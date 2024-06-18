@@ -35,23 +35,11 @@ jobs:
       run: |
         repo="${{ github.event.inputs.repository }}"
         env_name="${{ github.event.inputs.environment_name }}"
-        gh api \
-          -X PUT \
-          -H "Authorization: token ${{ secrets.TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          /repos/$repo/environments \
-          -f name=$env_name
+        user=$(gh api user --jq '.login')
 
-    - name: Add Environment Variable
-      run: |
-        repo="${{ github.event.inputs.repository }}"
-        env_name="${{ github.event.inputs.environment_name }}"
-        var_name="${{ github.event.inputs.variable_name }}"
-        var_value="${{ github.event.inputs.variable_value }}"
         gh api \
           -X PUT \
           -H "Authorization: token ${{ secrets.TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
-          /repos/$repo/environments/$env_name/variables \
-          -f name=$var_name \
-          -f value=$var_value
+          "/repos/${user}/${repo}/environments/${env_name}" \
+          -F name="$env_name"
