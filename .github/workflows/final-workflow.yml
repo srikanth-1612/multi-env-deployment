@@ -27,11 +27,7 @@ jobs:
         run: |
           ENV_NAME=${{ github.event.inputs.environment_name }}
           VAR_NAME=${{ github.event.inputs.variable_name }}
-          VAR_VALUE=${{ github.event.inputs.variable_value }}
-          
-          if [ -z "$VAR_VALUE" ]; then
-            VAR_VALUE=$ENV_NAME
-          fi
+          VAR_VALUE=$ENV_NAME
 
           echo "Setting environment variable: $VAR_NAME with value: $VAR_VALUE"
           echo "$VAR_NAME=$VAR_VALUE" >> $GITHUB_ENV
