@@ -21,7 +21,7 @@ jobs:
     - name: List Repositories
       id: get_repos
       run: |
-        org_name="srikanth-1612"
+        org_name="mgm-chinna"
         repos=$(gh repo list $org_name --json name | jq -r '.[].name')
         echo "repositories=$(echo $repos | tr '\n' ' ')" >> $GITHUB_ENV
 
