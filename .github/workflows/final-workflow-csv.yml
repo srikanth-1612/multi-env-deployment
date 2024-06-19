@@ -30,7 +30,7 @@ jobs:
       - name: Read and process CSV file
         id: read_csv
         run: |
-          cat repos.csv | csvcut -c 1 > repos.txt
+          tail -n +2 repos.csv | csvcut -c 1 > repos.txt
 
       - name: Add Environment Variable to Repositories
         env:
