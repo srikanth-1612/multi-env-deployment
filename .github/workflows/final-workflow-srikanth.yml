@@ -1,0 +1,65 @@
+name: Add Environment Variables (final)
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_name:
+        description: 'Enter the repository name'
+        required: true
+        type: string 
+      actual_env_name:
+        description: 'Actual name of the environment in GitHub'
+        required: true
+        type: string
+      var_name:
+        description: 'Name of the environment variable'
+        required: false
+        default: 'DEPLOY_ENV'
+        type: string    
+      env_name:
+        description: 'Name of the environment variable value'
+        required: true
+        type: string
+      
+        
+jobs:
+  add-env-vars:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Add Environment Variables to Repositories
+      env:
+        GITFLOW_GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        ORG_NAME: srikanth-1612
+        REPO_NAME: ${{ github.event.inputs.repo_name }}
+        ENV_NAME: ${{ github.event.inputs.actual_env_name }}
+        VAR_NAME: ${{ github.event.inputs.var_name }}
+        VAR_VALUE: ${{ github.event.inputs.env_name }}
+      run: |
+        echo "Processing repository: $REPO_NAME"
+        
+        # Fetch existing environments to check if the environment exists
+        echo "Fetching environments..."
+        curl -H "Authorization: token $GITFLOW_GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/$ORG_NAME/$REPO_NAME/environments
+        
+        # Check if environment exists
+        env_id=$(curl -H "Authorization: token $GITFLOW_GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/$ORG_NAME/$REPO_NAME/environments | jq -r --arg ENV_NAME "$ENV_NAME" '.environments[] | select(.name == $ENV_NAME) | .id')
+        
+        if [ -z "$env_id" ]; then
+          echo "Creating environment: $ENV_NAME"
+          curl -X PUT -H "Authorization: token $GITFLOW_GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/$ORG_NAME/$REPO_NAME/environments/$ENV_NAME
+        else
+          echo "Environment $ENV_NAME already exists"
+        fi
+        
+        # Add the environment variable
+        echo "Adding environment variable: $VAR_NAME with value $VAR_VALUE"
+        curl -X POST -H "Authorization: token $GITFLOW_GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/$ORG_NAME/$REPO_NAME/environments/$ENV_NAME/variables \
+          -d "{\"name\":\"$VAR_NAME\", \"value\":\"$VAR_VALUE\"}"
