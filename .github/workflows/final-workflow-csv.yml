@@ -1,0 +1,60 @@
+name: Add Environment Variable to Repositories
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: 'Environment name'
+        required: true
+      variable_name:
+        description: 'Environment variable name'
+        required: true
+        default: 'DEPLOY_ENV'
+      variable_value:
+        description: 'Environment variable value'
+        required: true
+
+jobs:
+  add-env-variable:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y jq
+          sudo apt-get install -y csvkit
+
+      - name: Read and process CSV file
+        id: read_csv
+        run: |
+          cat repos.csv | csvcut -c 1 > repos.txt
+
+      - name: Add Environment Variable to Repositories
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          ENV_NAME: ${{ github.event.inputs.environment_name }}
+          VAR_NAME: ${{ github.event.inputs.variable_name }}
+          VAR_VALUE: ${{ github.event.inputs.variable_value }}
+        run: |
+          while IFS= read -r repo; do
+            echo "Processing repository: $repo"
+
+            # Check if environment exists
+            env_id=$(curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments | jq -r --arg ENV_NAME "$ENV_NAME" '.environments[] | select(.name == $ENV_NAME) | .id')
+
+            if [ -z "$env_id" ]; then
+              echo "Creating environment: $ENV_NAME"
+              curl -X PUT -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME
+            else
+              echo "Environment $ENV_NAME already exists"
+            fi
+
+            # Add the environment variable
+            echo "Adding environment variable: $VAR_NAME with value $VAR_VALUE"
+            curl -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME/variables \
+              -d "{\"name\":\"$VAR_NAME\", \"value\":\"$VAR_VALUE\"}"
+          done < repos.txt
