@@ -31,11 +31,11 @@ jobs:
         CSV_FILE_PATH="repos.csv"
         if [ -f "$CSV_FILE_PATH" ]; then
           # Extract the repository names from the CSV file
-          repos=$(awk -F',' 'NR>1 {print $1}' "$CSV_FILE_PATH")
-          IFS=$'\n' # Set IFS to newline to handle each repo name correctly
-          for repo in $repos; do
-            echo "Processing repository: $repo"
-          done
+          repos=$(awk -F',' 'NR>1 {print $1}' "$CSV_FILE_PATH" | tr '\n' ' ')
+          echo "::set-output name=repos::$repos"
+        else
+          echo "Error: $CSV_FILE_PATH not found."
+          exit 1
         fi
 
     - name: Add Environment Variables to Repositories
@@ -46,8 +46,9 @@ jobs:
         VAR_VALUE: ${{ github.event.inputs.env_name }}
 
       run: |
-        IFS=','
-        for repo in $repos; do
+        repos="${{ steps.read-repos.outputs.repos }}"
+        IFS=' ' read -r -a repo_array <<< "$repos"
+        for repo in "${repo_array[@]}"; do
           echo "Processing repository: $repo"
 
           # Fetch existing environments to check if the environment exists
