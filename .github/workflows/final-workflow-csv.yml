@@ -34,7 +34,7 @@ jobs:
 
       - name: Add Environment Variable to Repositories
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           ENV_NAME: ${{ github.event.inputs.environment_name }}
           VAR_NAME: ${{ github.event.inputs.variable_name }}
           VAR_VALUE: ${{ github.event.inputs.variable_value }}
