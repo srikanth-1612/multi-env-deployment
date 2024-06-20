@@ -1,71 +1,67 @@
-name: Add Environment Variables (surya)
+name: Add Environment Variable to Repositories
 
 on:
   workflow_dispatch:
     inputs:
-      actual_env_name:
-        description: 'Actual name of the environment in GitHub'
+      environment_name:
+        description: 'Environment name'
         required: true
-        type: string
-      var_name:
-        description: 'Name of the environment variable'
-        required: false
+      variable_name:
+        description: 'Environment variable name'
+        required: true
         default: 'DEPLOY_ENV'
-        type: string    
-      env_name:
-        description: 'Name of the environment variable value'
+      variable_value:
+        description: 'Environment variable value'
         required: true
-        type: string
 
 jobs:
-  add-env-vars:
+  add-env-variable:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get install -y jq
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y jq
 
-    - name: Read Repos from CSV
-      id: read-repos
-      run: |
-        CSV_FILE_PATH="repos.csv"
-        if [ -f "$CSV_FILE_PATH" ]; then
-         repos=$(awk -F',' 'NR>1 {print $1}' "$CSV_FILE_PATH" | tr '\n' ',')
-         repos="${repos%,}"  # Remove trailing comma
-         echo "repos=$repos" >> $GITHUB_ENV
-        else
-         echo "Error: $CSV_FILE_PATH not found."
-         exit 1
-        fi
-    - name: Add Environment Variables to Repositories
-      env:
-        GITFLOW_GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        REPOS: ${{ env.repos }}
-        ENV_NAME: ${{ github.event.inputs.actual_env_name }}
-        VAR_NAME: ${{ github.event.inputs.var_name }}
-        VAR_VALUE: ${{ github.event.inputs.env_name }}
-      run: |
-        IFS=','
-        for REPO_NAME in $REPOS; do
-          echo "Processing repository: $REPO_NAME"
-          
-          # Check if environment exists
+      - name: Read and process CSV file
+        id: read_csv
+        run: |
+          CSV_FILE_PATH="repos.csv"
+          if [ -f "$CSV_FILE_PATH" ]; then
+            repos=$(awk -F',' 'NR>1 {print $1}' "$CSV_FILE_PATH" | tr '\n' ',')
+            repos="${repos%,}"  # Remove trailing comma
+            echo "repos=$repos" >> $GITHUB_ENV
+          else
+            echo "Error: $CSV_FILE_PATH not found."
+            exit 1
+          fi
+
+      - name: Add Environment Variable to Repositories
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          ENV_NAME: ${{ github.event.inputs.environment_name }}
+          VAR_NAME: ${{ github.event.inputs.variable_name }}
+          VAR_VALUE: ${{ github.event.inputs.variable_value }}
+        run: |
+          while IFS= read -r repo; do
+            echo "Processing repository: $repo"
+
+            # Check if environment exists
             env_id=$(curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments | jq -r --arg ENV_NAME "$ENV_NAME" '.environments[] | select(.name == $ENV_NAME) | .id')
-            
+
             if [ -z "$env_id" ]; then
               echo "Creating environment: $ENV_NAME"
               curl -X PUT -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME
             else
               echo "Environment $ENV_NAME already exists"
             fi
-            
-          # Add the environment variable
-          echo "Adding environment variable: $VAR_NAME with value $VAR_VALUE"
-          curl -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME/variables \
-            -d "{\"name\":\"$VAR_NAME\", \"value\":\"$VAR_VALUE\"}"
-        done
+
+            # Add the environment variable
+            echo "Adding environment variable: $VAR_NAME with value $VAR_VALUE"
+            curl -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME/variables \
+              -d "{\"name\":\"$VAR_NAME\", \"value\":\"$VAR_VALUE\"}"
+          done < repos.txt
