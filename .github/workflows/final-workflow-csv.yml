@@ -25,19 +25,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y jq
+          sudo apt-get install -y csvkit
 
       - name: Read and process CSV file
         id: read_csv
         run: |
-          CSV_FILE_PATH="repos.csv"
-          if [ -f "$CSV_FILE_PATH" ]; then
-            repos=$(awk -F',' 'NR>1 {print $1}' "$CSV_FILE_PATH" | tr '\n' ',')
-            repos="${repos%,}"  # Remove trailing comma
-            echo "repos=$repos" >> $GITHUB_ENV
-          else
-            echo "Error: $CSV_FILE_PATH not found."
-            exit 1
-          fi
+          tail -n +2 repos.csv | csvcut -c 1 > repos.txt
 
       - name: Add Environment Variable to Repositories
         env:
@@ -48,10 +41,9 @@ jobs:
         run: |
           while IFS= read -r repo; do
             echo "Processing repository: $repo"
-
+            
             # Check if environment exists
             env_id=$(curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments | jq -r --arg ENV_NAME "$ENV_NAME" '.environments[] | select(.name == $ENV_NAME) | .id')
-
             if [ -z "$env_id" ]; then
               echo "Creating environment: $ENV_NAME"
               curl -X PUT -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME
@@ -64,4 +56,4 @@ jobs:
             curl -X POST -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/${{ github.repository_owner }}/$repo/environments/$ENV_NAME/variables \
               -d "{\"name\":\"$VAR_NAME\", \"value\":\"$VAR_VALUE\"}"
-          done < repos.csv
+          done < repos.txt
