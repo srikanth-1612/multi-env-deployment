@@ -46,7 +46,8 @@ jobs:
         VAR_VALUE: ${{ github.event.inputs.env_name }}
 
       run: |
-        while IFS= read -r repo; do
+        IFS=','
+        for repo in $repos; do
           echo "Processing repository: $repo"
 
           # Fetch existing environments to check if the environment exists
