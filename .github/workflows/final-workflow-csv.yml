@@ -44,8 +44,10 @@ jobs:
         ENV_NAME: ${{ github.event.inputs.actual_env_name }}
         VAR_NAME: ${{ github.event.inputs.var_name }}
         VAR_VALUE: ${{ github.event.inputs.env_name }}
+        REPOS: ${{ env.repos }}
+
       run: |
-        IFS=' ' read -r -a repo_array <<< "$repos"
+        IFS=' ' read -r -a repo_array <<< "$REPOS"
         for repo in "${repo_array[@]}"; do
           echo "Processing repository: $repo"
 
