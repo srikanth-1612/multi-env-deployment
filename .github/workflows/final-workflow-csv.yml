@@ -6,11 +6,10 @@ on:
       environment_name:
         description: 'Environment name'
         required: true
-        default: 'Dev'
       variable_name:
         description: 'Environment variable name'
         required: true
-        default: 'deploy_env'
+        default: 'DEPLOY_ENV'
       variable_value:
         description: 'Environment variable value'
         required: true
